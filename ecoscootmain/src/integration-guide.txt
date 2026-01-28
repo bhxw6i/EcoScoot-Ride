@@ -1,0 +1,11 @@
+
+To use the new ProfilePage component, please add the following route to your App.tsx file:
+
+```tsx
+import ProfilePage from "./pages/ProfilePage";
+
+// Inside your Routes component
+<Route path="/profile" element={<ProfilePage />} />
+```
+
+This will make the profile page accessible at /profile, and the UserMenu component now navigates to this page when clicking "Profile Details".
