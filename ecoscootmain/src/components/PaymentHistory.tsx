@@ -25,12 +25,6 @@ export function PaymentHistory() {
     fetchCurrentUser();
   }, []);
 
-  useEffect(() => {
-    if (userId) {
-      fetchPayments();
-    }
-  }, [userId]);
-
   const fetchPayments = async () => {
     if (!userId) return;
     
@@ -49,6 +43,12 @@ export function PaymentHistory() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (userId) {
+      fetchPayments();
+    }
+  }, [userId]);
 
   const formatDate = (dateString: string | undefined) => {
     if (!dateString) return "N/A";

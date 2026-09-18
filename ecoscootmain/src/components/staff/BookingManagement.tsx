@@ -123,16 +123,6 @@ export default function BookingManagement() {
     }
   }, [toast, statusFilter]);
 
-  // Fetch bookings on component mount and when fetchBookings dependencies change
-  useEffect(() => {
-    fetchBookings();
-  }, [fetchBookings]);
-
-  // Apply filters when dependencies change
-  useEffect(() => {
-    filterBookings();
-  }, [bookings, searchTerm, statusFilter]);
-
   const filterBookings = useCallback(() => {
     if (!bookings.length) {
       console.log("No bookings to filter");
@@ -170,6 +160,16 @@ export default function BookingManagement() {
     console.log("Filtered bookings:", filtered);
     setFilteredBookings(filtered);
   }, [bookings, searchTerm, statusFilter]);
+
+  // Fetch bookings on component mount and when fetchBookings dependencies change
+  useEffect(() => {
+    fetchBookings();
+  }, [fetchBookings]);
+
+  // Apply filters when dependencies change
+  useEffect(() => {
+    filterBookings();
+  }, [filterBookings]);
 
   const openPaymentDialog = (booking: Booking) => {
     setSelectedBooking(booking);

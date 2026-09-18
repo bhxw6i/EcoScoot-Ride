@@ -44,7 +44,7 @@ export function calculateGrowth(current: number, previous: number): string {
  * Groups data by a specific time period (day, week, month)
  */
 export function groupDataByPeriod(
-  data: Array<{ created_at: string, [key: string]: any }>,
+  data: Array<{ created_at: string, [key: string]: unknown }>,
   valueKey: string,
   period: 'day' | 'week' | 'month' = 'day'
 ): Array<{ period: string, value: number }> {

@@ -3,8 +3,8 @@
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
-const SUPABASE_URL = "https://wuefnsfzyneciyaucwrq.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind1ZWZuc2Z6eW5lY2l5YXVjd3JxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE2NzgzNTgsImV4cCI6MjA1NzI1NDM1OH0.ZusnFKNlgH6hHMU8g5UkjnUwwmQn340EnHCQYPNy_ZI";
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL || "https://wuefnsfzyneciyaucwrq.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY || import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY || "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind1ZWZuc2Z6eW5lY2l5YXVjd3JxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE2NzgzNTgsImV4cCI6MjA1NzI1NDM1OH0.ZusnFKNlgH6hHMU8g5UkjnUwwmQn340EnHCQYPNy_ZI";
 
 // Database name: ecoscoot
 // Import the supabase client like this:

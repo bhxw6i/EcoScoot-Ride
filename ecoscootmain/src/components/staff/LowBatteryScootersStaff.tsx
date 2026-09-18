@@ -74,11 +74,12 @@ export function LowBatteryScootersStaff() {
         title: "Scooter assigned",
         description: "Scooter has been assigned for charging",
       });
-    } catch (error: any) {
-      console.error("Error assigning scooter for charging:", error);
+    } catch (error: unknown) {
+      const err = error as Error;
+      console.error("Error assigning scooter for charging:", err);
       toast({
         title: "Error",
-        description: error.message || "Failed to assign scooter for charging",
+        description: err.message || "Failed to assign scooter for charging",
         variant: "destructive",
       });
     } finally {

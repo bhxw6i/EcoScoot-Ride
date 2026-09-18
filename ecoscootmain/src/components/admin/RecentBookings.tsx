@@ -67,15 +67,24 @@ export function RecentBookings() {
         if (error) throw error;
         
         // Transform the data to match our Booking interface
-        const formattedBookings = data.map((booking: any) => ({
+        const formattedBookings = (data as unknown as Array<{
+          id: string;
+          user_id: string;
+          scooter_id: string;
+          start_time: string;
+          start_location: string;
+          status: string;
+          profiles: { first_name: string | null; last_name: string | null } | null;
+          scooter: { model: string; battery_level: number } | null;
+        }>).map((booking) => ({
           id: booking.id,
           user_id: booking.user_id,
           scooter_id: booking.scooter_id,
           start_time: booking.start_time,
           start_location: booking.start_location,
           status: booking.status,
-          profile: booking.profiles,
-          scooter: booking.scooter,
+          profile: booking.profiles || undefined,
+          scooter: booking.scooter || undefined,
         }));
         
         setBookings(formattedBookings);
@@ -89,7 +98,7 @@ export function RecentBookings() {
     fetchRecentBookings();
   }, []);
 
-  const formatName = (profile: any) => {
+  const formatName = (profile?: { first_name: string | null; last_name: string | null }) => {
     if (!profile) return 'Unknown User';
     return `${profile.first_name || ''} ${profile.last_name || ''}`.trim() || 'Unnamed User';
   };

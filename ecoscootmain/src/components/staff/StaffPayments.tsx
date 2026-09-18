@@ -47,10 +47,6 @@ export default function StaffPayments() {
   const [selectedPayment, setSelectedPayment] = useState<PaymentWithProfile | null>(null);
   const { toast } = useToast();
 
-  useEffect(() => {
-    fetchPayments();
-  }, []);
-
   const fetchPayments = async () => {
     try {
       setIsLoading(true);
@@ -80,6 +76,10 @@ export default function StaffPayments() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchPayments();
+  }, []);
 
   const handleOpenStatusDialog = (payment: PaymentWithProfile) => {
     setSelectedPayment(payment);

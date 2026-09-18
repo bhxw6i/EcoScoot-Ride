@@ -59,7 +59,7 @@ export function useAnalyticsData(period: '7days' | '30days' | '90days' = '7days'
         const revenueByDay = new Map<string, number>();
         
         // Initialize all days in the period with 0 values
-        let currentDate = new Date(startDate);
+        const currentDate = new Date(startDate);
         const lastDate = new Date(today);
         
         while (currentDate <= lastDate) {

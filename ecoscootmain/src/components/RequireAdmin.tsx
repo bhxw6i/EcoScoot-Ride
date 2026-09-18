@@ -1,7 +1,6 @@
 
 import { ReactNode, useEffect, useState } from 'react';
-import { Navigate, useLocation, useNavigate } from 'react-router-dom';
-import { authApi } from '@/api/authApi';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -11,7 +10,6 @@ interface RequireAdminProps {
 
 export default function RequireAdmin({ children }: RequireAdminProps) {
   const location = useLocation();
-  const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState<boolean | null>(null);
   const { toast } = useToast();
   

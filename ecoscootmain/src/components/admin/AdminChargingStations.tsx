@@ -55,10 +55,6 @@ export default function AdminChargingStations() {
   const [selectedStation, setSelectedStation] = useState<ChargingStation | null>(null);
   const { toast } = useToast();
 
-  useEffect(() => {
-    fetchChargingStations();
-  }, []);
-
   const fetchChargingStations = async () => {
     try {
       setIsLoading(true);
@@ -76,17 +72,22 @@ export default function AdminChargingStations() {
       })) || [];
       
       setStations(transformedData as ChargingStation[]);
-    } catch (error: any) {
-      console.error("Error fetching charging stations:", error.message);
+    } catch (error: unknown) {
+      const err = error as Error;
+      console.error("Error fetching charging stations:", err.message);
       toast({
         title: "Error",
-        description: `Failed to fetch charging stations: ${error.message}`,
+        description: `Failed to fetch charging stations: ${err.message}`,
         variant: "destructive",
       });
     } finally {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchChargingStations();
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -120,11 +121,12 @@ export default function AdminChargingStations() {
         title: "Success",
         description: "Charging station created successfully.",
       });
-    } catch (error: any) {
-      console.error("Error creating charging station:", error.message);
+    } catch (error: unknown) {
+      const err = error as Error;
+      console.error("Error creating charging station:", err.message);
       toast({
         title: "Error",
-        description: `Failed to create charging station: ${error.message}`,
+        description: `Failed to create charging station: ${err.message}`,
         variant: "destructive",
       });
     } finally {
@@ -168,11 +170,12 @@ export default function AdminChargingStations() {
         title: "Success",
         description: "Charging station updated successfully.",
       });
-    } catch (error: any) {
-      console.error("Error updating charging station:", error.message);
+    } catch (error: unknown) {
+      const err = error as Error;
+      console.error("Error updating charging station:", err.message);
       toast({
         title: "Error",
-        description: `Failed to update charging station: ${error.message}`,
+        description: `Failed to update charging station: ${err.message}`,
         variant: "destructive",
       });
     } finally {
@@ -195,11 +198,12 @@ export default function AdminChargingStations() {
         title: "Success",
         description: "Charging station deleted successfully.",
       });
-    } catch (error: any) {
-      console.error("Error deleting charging station:", error.message);
+    } catch (error: unknown) {
+      const err = error as Error;
+      console.error("Error deleting charging station:", err.message);
       toast({
         title: "Error",
-        description: `Failed to delete charging station: ${error.message}`,
+        description: `Failed to delete charging station: ${err.message}`,
         variant: "destructive",
       });
     } finally {

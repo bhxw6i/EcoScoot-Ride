@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -7,6 +7,7 @@ import { ArrowLeft, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Navbar } from "@/components/Navbar";
 import { format, isPast } from "date-fns";
+import type { User as SupabaseUser } from "@supabase/supabase-js";
 
 interface Booking {
   id: string;
@@ -22,66 +23,13 @@ interface Booking {
 
 export default function BookingsPage() {
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<SupabaseUser | null>(null);
   const [currentBookings, setCurrentBookings] = useState<Booking[]>([]);
   const [previousBookings, setPreviousBookings] = useState<Booking[]>([]);
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        
-        if (!user) return;
-        
-        setUser(user);
-        await fetchBookings(user.id);
-      } catch (error: any) {
-        console.error("Error fetching user data:", error.message);
-        toast({
-          title: "Error",
-          description: "Failed to load user data",
-          variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchUserData();
-  }, [navigate, toast]);
-
-  const checkAndUpdateExpiredBookings = async (bookings: Booking[], userId: string) => {
-    const now = new Date();
-    const expiredBookings = bookings.filter(booking => 
-      (booking.status === 'active' || booking.status === 'reserved') && 
-      booking.dropoff_date && 
-      isPast(new Date(booking.dropoff_date))
-    );
-    
-    // Update status of expired bookings in the database
-    for (const booking of expiredBookings) {
-      try {
-        await supabase
-          .from('bookings')
-          .update({ status: 'completed' })
-          .eq('id', booking.id)
-          .eq('user_id', userId);
-        
-        console.log(`Updated booking ${booking.id} to completed status`);
-      } catch (error) {
-        console.error(`Failed to update booking ${booking.id}:`, error);
-      }
-    }
-    
-    // If any bookings were updated, refresh the booking lists
-    if (expiredBookings.length > 0) {
-      await fetchBookings(userId);
-    }
-  };
-
-  const fetchBookings = async (userId: string) => {
+  const fetchBookings = useCallback(async (userId: string) => {
     try {
       // Fetch active/reserved bookings
       const { data: active, error: activeError } = await supabase
@@ -110,10 +58,25 @@ export default function BookingsPage() {
       })) || [];
       
       // Check and update any expired bookings
-      await checkAndUpdateExpiredBookings(formattedActive, userId);
+      const now = new Date();
+      const expiredBookings = formattedActive.filter(booking => 
+        (booking.status === 'active' || booking.status === 'reserved') && 
+        booking.dropoff_date && 
+        isPast(new Date(booking.dropoff_date))
+      );
       
-      // After potentially updating statuses, set the current bookings
-      // We'll filter out any that might have just expired
+      for (const booking of expiredBookings) {
+        try {
+          await supabase
+            .from('bookings')
+            .update({ status: 'completed' })
+            .eq('id', booking.id)
+            .eq('user_id', userId);
+        } catch (error) {
+          console.error(`Failed to update booking ${booking.id}:`, error);
+        }
+      }
+      
       const currentActiveBookings = formattedActive.filter(booking => 
         !booking.dropoff_date || !isPast(new Date(booking.dropoff_date))
       );
@@ -141,7 +104,6 @@ export default function BookingsPage() {
 
       if (completedError) throw completedError;
       
-      // Format completed bookings with scooter model
       const formattedCompleted = completed?.map(booking => ({
         ...booking,
         model: booking.scooters?.model
@@ -149,15 +111,43 @@ export default function BookingsPage() {
       
       setPreviousBookings(formattedCompleted || []);
 
-    } catch (error: any) {
-      console.error("Error fetching bookings:", error.message);
+    } catch (error: unknown) {
+      const err = error as Error;
+      console.error("Error fetching bookings:", err.message);
       toast({
         title: "Error",
         description: "Failed to load booking data",
         variant: "destructive",
       });
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (!user) return;
+        
+        setUser(user);
+        await fetchBookings(user.id);
+      } catch (error: unknown) {
+        const err = error as Error;
+        console.error("Error fetching user data:", err.message);
+        toast({
+          title: "Error",
+          description: "Failed to load user data",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchUserData();
+  }, [fetchBookings, toast]);
+
+
 
   const formatDateTime = (isoString: string) => {
     try {

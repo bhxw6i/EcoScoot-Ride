@@ -30,25 +30,6 @@ export default function UserSupport() {
   const [paymentStatus, setPaymentStatus] = useState('');
   const { toast } = useToast();
 
-  useEffect(() => {
-    fetchProfiles();
-  }, []);
-
-  useEffect(() => {
-    if (searchTerm.trim() === '') {
-      setFilteredProfiles(profiles);
-    } else {
-      const filtered = profiles.filter(
-        profile => 
-          (profile.first_name && profile.first_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-          (profile.last_name && profile.last_name.toLowerCase().includes(searchTerm.toLowerCase())) ||
-          (profile.email && profile.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
-          (profile.phone && profile.phone.includes(searchTerm))
-      );
-      setFilteredProfiles(filtered);
-    }
-  }, [searchTerm, profiles]);
-
   const fetchProfiles = async () => {
     try {
       setIsLoading(true);
@@ -79,16 +60,20 @@ export default function UserSupport() {
       setProfiles(customerProfiles);
       setFilteredProfiles(customerProfiles);
     } catch (error) {
-      console.error("Error fetching customer profiles:", error);
+      console.error("Error in fetchProfiles:", error);
       toast({
-        title: "Failed to load users",
-        description: "There was an error loading customer data. Please try again.",
+        title: "Error",
+        description: "Failed to load customer profiles",
         variant: "destructive",
       });
     } finally {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchProfiles();
+  }, []);
 
   const fetchUserPayments = async (userId: string) => {
     try {

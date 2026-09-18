@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Navbar } from "@/components/Navbar";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import type { User as SupabaseUser } from "@supabase/supabase-js";
 import { 
   Select,
   SelectContent,
@@ -32,7 +33,7 @@ interface Profile {
 
 export default function ProfilePage() {
   const [loading, setLoading] = useState(true);
-  const [user, setUser] = useState<any>(null);
+  const [user, setUser] = useState<SupabaseUser | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -45,66 +46,6 @@ export default function ProfilePage() {
   const [isSaving, setIsSaving] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        
-        if (!user) return;
-        
-        setUser(user);
-        await fetchProfile(user.id);
-      } catch (error: any) {
-        console.error("Error fetching user data:", error.message);
-        toast({
-          title: "Error",
-          description: "Failed to load user data",
-          variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchUserData();
-  }, [navigate, toast]);
-
-  const fetchProfile = async (userId: string) => {
-    try {
-      // First check if profile exists
-      const { data, error } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", userId)
-        .single();
-      
-      if (error) {
-        if (error.code === 'PGRST116') {
-          // Profile doesn't exist, create one
-          await createProfile(userId);
-          return;
-        }
-        throw error;
-      }
-      
-      setProfile(data);
-      setFirstName(data.first_name || "");
-      setLastName(data.last_name || "");
-      setGender(data.gender || "");
-      setPhone(data.phone || "");
-      setLicenseNumber(data.license_number || "");
-      setLicenseValidity(data.license_validity ? data.license_validity.substring(0, 10) : "");
-      setDateOfBirth(data.date_of_birth ? data.date_of_birth.substring(0, 10) : "");
-    } catch (error: any) {
-      console.error("Error fetching profile:", error.message);
-      toast({
-        title: "Error fetching profile",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  };
 
   const createProfile = async (userId: string) => {
     try {
@@ -142,15 +83,80 @@ export default function ProfilePage() {
         title: "Profile created",
         description: "Your profile has been created. Please add your details.",
       });
-    } catch (error: any) {
-      console.error("Error creating profile:", error.message);
+    } catch (error: unknown) {
+      const err = error as Error;
+      console.error("Error creating profile:", err.message);
       toast({
         title: "Error creating profile",
-        description: error.message,
+        description: err.message,
         variant: "destructive",
       });
     }
   };
+
+  const fetchProfile = useCallback(async (userId: string) => {
+    try {
+      // First check if profile exists
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", userId)
+        .single();
+      
+      if (error) {
+        if (error.code === 'PGRST116') {
+          // Profile doesn't exist, create one
+          await createProfile(userId);
+          return;
+        }
+        throw error;
+      }
+      
+      setProfile(data);
+      setFirstName(data.first_name || "");
+      setLastName(data.last_name || "");
+      setGender(data.gender || "");
+      setPhone(data.phone || "");
+      setLicenseNumber(data.license_number || "");
+      setLicenseValidity(data.license_validity ? data.license_validity.substring(0, 10) : "");
+      setDateOfBirth(data.date_of_birth ? data.date_of_birth.substring(0, 10) : "");
+    } catch (error: unknown) {
+      const err = error as Error;
+      console.error("Error fetching profile:", err.message);
+      toast({
+        title: "Error fetching profile",
+        description: err.message,
+        variant: "destructive",
+      });
+    }
+  }, [toast]);
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (!user) return;
+        
+        setUser(user);
+        await fetchProfile(user.id);
+      } catch (error: unknown) {
+        const err = error as Error;
+        console.error("Error fetching user data:", err.message);
+        toast({
+          title: "Error",
+          description: "Failed to load user data",
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchUserData();
+  }, [fetchProfile, toast]);
+
+
 
   const handleSaveProfile = async () => {
     if (!user) return;
@@ -188,11 +194,12 @@ export default function ProfilePage() {
       setTimeout(() => {
         setSaveSuccess(false);
       }, 3000);
-    } catch (error: any) {
-      console.error("Error updating profile:", error.message);
+    } catch (error: unknown) {
+      const err = error as Error;
+      console.error("Error updating profile:", err.message);
       toast({
         title: "Error updating profile",
-        description: error.message,
+        description: err.message,
         variant: "destructive",
       });
     } finally {

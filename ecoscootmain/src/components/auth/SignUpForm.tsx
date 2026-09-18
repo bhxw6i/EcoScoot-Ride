@@ -131,12 +131,13 @@ export function SignUpForm({ onSuccess }: SignUpFormProps) {
       });
       
       onSuccess();
-    } catch (error: any) {
-      console.error("Sign up error:", error);
+    } catch (error: unknown) {
+      const err = error as Error;
+      console.error("Sign up error:", err);
       
       let errorMessage = "Something went wrong";
-      if (error.message) {
-        if (error.message.includes("User already registered")) {
+      if (err.message) {
+        if (err.message.includes("User already registered")) {
           errorMessage = "This email is already registered. Please try logging in instead.";
         } else if (error.message.includes("Email link is invalid")) {
           errorMessage = "The signup link is invalid. Please try again.";

@@ -35,29 +35,7 @@ export default function RidesPage() {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchRideData = async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        
-        if (!user) {
-          navigate('/');
-          return;
-        }
-        
-        await fetchRides(user.id);
-      } catch (error) {
-        console.error("Error fetching user data:", error.message);
-        setError("Failed to fetch user data. Please try again later.");
-      } finally {
-        setLoading(false);
-      }
-    };
-    
-    fetchRideData();
-  }, [navigate]);
-
-  const fetchRides = async (userId: string) => {
+  const fetchRides = useCallback(async (userId: string) => {
     try {
       // Fetch current active or reserved ride
       const { data: currentRideData, error: currentRideError } = await supabase
@@ -125,11 +103,35 @@ export default function RidesPage() {
       
       console.log("Previous rides data:", previousRidesData);
       setPreviousRides(previousRidesData || []);
-    } catch (error) {
-      console.error("Error fetching rides:", error.message);
+    } catch (error: unknown) {
+      const err = error as Error;
+      console.error("Error fetching rides:", err.message);
       setError("An unexpected error occurred. Please try again later.");
     }
-  };
+  }, [toast]);
+
+  useEffect(() => {
+    const fetchRideData = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        
+        if (!user) {
+          navigate('/');
+          return;
+        }
+        
+        await fetchRides(user.id);
+      } catch (error: unknown) {
+        const err = error as Error;
+        console.error("Error fetching user data:", err.message);
+        setError("Failed to fetch user data. Please try again later.");
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchRideData();
+  }, [fetchRides, navigate]);
 
   const handleCancelRide = (bookingId: string) => {
     setSelectedBookingId(bookingId);

@@ -47,6 +47,31 @@ export default function StaffVehicles() {
   const [isVehicleFormOpen, setIsVehicleFormOpen] = useState(false);
   const { toast } = useToast();
 
+  const fetchScooters = async () => {
+    try {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from('scooters')
+        .select('*')
+        .order('model', { ascending: true });
+      
+      if (error) throw error;
+      
+      setScooters(data || []);
+      setFilteredScooters(data || []);
+    } catch (error: unknown) {
+      const err = error as Error;
+      console.error("Error fetching scooters:", err);
+      toast({
+        title: "Error",
+        description: err.message || "Failed to load scooters",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchScooters();
   }, []);
@@ -64,30 +89,6 @@ export default function StaffVehicles() {
       setFilteredScooters(filtered);
     }
   }, [searchTerm, scooters]);
-
-  const fetchScooters = async () => {
-    try {
-      setIsLoading(true);
-      const { data, error } = await supabase
-        .from('scooters')
-        .select('*')
-        .order('model', { ascending: true });
-      
-      if (error) throw error;
-      
-      setScooters(data || []);
-      setFilteredScooters(data || []);
-    } catch (error: any) {
-      console.error("Error fetching scooters:", error);
-      toast({
-        title: "Error",
-        description: error.message || "Failed to load scooters",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const handleEditScooter = (scooter: Scooter) => {
     setSelectedScooter(scooter);

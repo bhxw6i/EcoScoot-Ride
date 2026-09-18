@@ -151,7 +151,7 @@ export function ScooterModelsSection() {
           <ScooterBookingDialog
             open={!!selectedModel}
             setOpen={(open) => !open && setSelectedModel(null)}
-            scooter={selectedModel as any}
+            scooter={selectedModel as unknown as import('@/integrations/supabase/types').Scooter}
           />
         )}
       </div>

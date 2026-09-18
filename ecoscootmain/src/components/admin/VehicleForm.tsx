@@ -20,7 +20,7 @@ interface VehicleFormProps {
     battery_capacity?: string;
     max_speed?: string;
     charging_time?: string;
-    features?: any;
+    features?: string[] | string | Record<string, unknown>;
     image_url?: string | null;
   };
   onSuccess: () => void;
@@ -143,11 +143,12 @@ export default function VehicleForm({ vehicle, onSuccess, onCancel }: VehicleFor
       }
       
       onSuccess();
-    } catch (error: any) {
-      console.error('Error saving vehicle:', error);
+    } catch (error: unknown) {
+      const err = error as Error;
+      console.error('Error saving vehicle:', err);
       toast({
         title: "Error",
-        description: error.message || "Failed to save vehicle",
+        description: err.message || "Failed to save vehicle",
         variant: "destructive"
       });
     } finally {

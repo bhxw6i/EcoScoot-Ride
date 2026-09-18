@@ -51,11 +51,6 @@ export default function AdminUsers() {
   const [selectedRoleId, setSelectedRoleId] = useState<number | null>(null);
   const { toast } = useToast();
 
-  useEffect(() => {
-    fetchRoles();
-    fetchUsers();
-  }, []);
-
   const fetchRoles = async () => {
     try {
       const { data: rolesData, error } = await supabase
@@ -63,21 +58,24 @@ export default function AdminUsers() {
         .select('*');
       
       if (error) {
-        console.error("Error fetching roles:", error);
-        throw error;
+        console.error('Error fetching roles:', error);
+        return;
       }
       
-      console.log("Roles fetched successfully:", rolesData);
-      setRoles(rolesData || []);
+      if (rolesData) {
+        setRoles(rolesData as Role[]);
+      }
     } catch (error) {
-      console.error("Error fetching roles:", error);
-      toast({
-        title: "Error fetching roles",
-        description: "There was a problem retrieving role data.",
-        variant: "destructive",
-      });
+      console.error('Error fetching roles:', error);
     }
   };
+
+
+
+  useEffect(() => {
+    fetchRoles();
+    fetchUsers();
+  }, []);
 
   const fetchUsers = async () => {
     try {

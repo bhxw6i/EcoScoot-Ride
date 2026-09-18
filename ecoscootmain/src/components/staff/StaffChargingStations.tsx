@@ -36,10 +36,6 @@ export default function StaffChargingStations() {
   const [searchQuery, setSearchQuery] = useState('');
   const { toast } = useToast();
 
-  useEffect(() => {
-    fetchChargingStations();
-  }, []);
-
   const fetchChargingStations = async () => {
     try {
       setIsLoading(true);
@@ -62,6 +58,10 @@ export default function StaffChargingStations() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchChargingStations();
+  }, []);
 
   // Filter stations based on search query
   const filteredStations = stations.filter(station => 

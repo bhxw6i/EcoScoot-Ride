@@ -68,11 +68,12 @@ export function CancelRideDialog({
       setOpen(false);
       onCancellationSuccess();
       
-    } catch (error: any) {
-      console.error("Error cancelling ride:", error);
+    } catch (error: unknown) {
+      const err = error as Error;
+      console.error("Error cancelling ride:", err);
       toast({
         title: "Cancellation failed",
-        description: error.message || "There was an error cancelling your ride. Please try again.",
+        description: err.message || "There was an error cancelling your ride. Please try again.",
         variant: "destructive"
       });
     } finally {

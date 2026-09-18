@@ -26,7 +26,7 @@ import { AnalyticsData } from '../staff/user-support/types';
 
 interface ChartTooltipProps {
   active?: boolean;
-  payload?: any[];
+  payload?: Array<{ name?: string; value?: number | string }>;
   label?: string;
 }
 
@@ -52,34 +52,34 @@ export default function AdminAnalytics() {
   const { toast } = useToast();
 
   useEffect(() => {
+    const fetchAnalyticsData = async () => {
+      setIsLoading(true);
+      try {
+        // Fetch revenue data
+        await fetchRevenueData();
+
+        // Fetch user signups data
+        await fetchUserSignupsData();
+
+        // Fetch bookings data
+        await fetchBookingsData();
+        
+        // Fetch scooter data
+        await fetchScooterData();
+      } catch (error) {
+        console.error("Error fetching analytics data:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load analytics data",
+          variant: "destructive",
+        });
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
     fetchAnalyticsData();
-  }, [timeRange]);
-
-  const fetchAnalyticsData = async () => {
-    setIsLoading(true);
-    try {
-      // Fetch revenue data
-      await fetchRevenueData();
-
-      // Fetch user signups data
-      await fetchUserSignupsData();
-
-      // Fetch bookings data
-      await fetchBookingsData();
-      
-      // Fetch scooter data
-      await fetchScooterData();
-    } catch (error) {
-      console.error("Error fetching analytics data:", error);
-      toast({
-        title: "Error",
-        description: "Failed to load analytics data",
-        variant: "destructive",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  }, [timeRange, toast]);
 
   const fetchScooterData = async () => {
     try {
