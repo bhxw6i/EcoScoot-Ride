@@ -1,0 +1,19 @@
+# Stage 1: Build Java Spring Boot app inside ecoscoot directory
+FROM maven:3.9-eclipse-temurin-17 AS build
+WORKDIR /app
+
+# Copy pom.xml and download dependencies
+COPY ecoscoot/pom.xml .
+RUN mvn dependency:go-offline -B
+
+# Copy source code and build package
+COPY ecoscoot/src ./src
+RUN mvn package -DskipTests
+
+# Stage 2: Minimal Runtime image
+FROM eclipse-temurin:17-jre-alpine
+WORKDIR /app
+COPY --from=build /app/target/*.jar app.jar
+
+EXPOSE 8080
+ENTRYPOINT ["java", "-jar", "app.jar"]
