@@ -17,8 +17,8 @@
 
 | Variable | Description | Default Value |
 | :--- | :--- | :--- |
-| `SPRING_DATASOURCE_URL` | PostgreSQL JDBC URL | `jdbc:postgresql://db.wuefnsfzyneciyaucwrq.supabase.co:5432/postgres` |
-| `SPRING_DATASOURCE_USERNAME` | Database User | `postgres` |
+| `SPRING_DATASOURCE_URL` | PostgreSQL JDBC URL | `jdbc:postgresql://aws-0-ap-northeast-2.pooler.supabase.com:6543/postgres?sslmode=require` |
+| `SPRING_DATASOURCE_USERNAME` | Database User | `postgres.wuefnsfzyneciyaucwrq` |
 | `SPRING_DATASOURCE_PASSWORD` | Database Password | `ecoscoot@123` |
 | `SPRING_JPA_HIBERNATE_DDL_AUTO` | Hibernate Schema Strategy | `update` |
 | `JWT_SECRET` | Secret key for signing JWT tokens | `ecoscoot_secret_key_should_be_very_long_and_secure_in_production` |
